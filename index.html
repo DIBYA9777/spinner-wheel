@@ -1,1 +1,206 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Sleek Spinner - #1a56db</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: radial-gradient(circle, #ffffff, #e5e7eb);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
 
+        .container {
+            text-align: center;
+            position: relative;
+        }
+
+        /* Blue 3D Pointer */
+        .pointer {
+            width: 0; 
+            height: 0; 
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 35px solid #1a56db; /* Primary Blue */
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            filter: drop-shadow(0 4px 3px rgba(0,0,0,0.2));
+        }
+
+        /* Sleek Blue Wheel Frame */
+        .wheel-box {
+            position: relative;
+            padding: 8px; /* Reduced width */
+            background: #1a56db; 
+            border-radius: 50%;
+            box-shadow: 
+                0 10px 25px rgba(26, 86, 219, 0.3),
+                inset 0 2px 5px rgba(255,255,255,0.4);
+        }
+
+        #wheel {
+            border-radius: 50%;
+            display: block;
+            transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
+            background: white;
+        }
+
+        /* 3D Blue Button */
+        #spin-btn {
+            margin-top: 40px;
+            padding: 15px 45px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            background-color: #1a56db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            /* 3D Depth */
+            box-shadow: 
+                0 6px 0 #123e9e, 
+                0 10px 20px rgba(26, 86, 219, 0.3);
+            transition: all 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #spin-btn:active {
+            box-shadow: 0 2px 0 #123e9e;
+            transform: translateY(4px);
+        }
+
+        #spin-btn:disabled {
+            background-color: #93c5fd;
+            box-shadow: 0 4px 0 #60a5fa;
+            cursor: not-allowed;
+        }
+
+        #result {
+            margin-top: 25px;
+            font-size: 26px;
+            font-weight: 800;
+            color: #1a56db;
+            min-height: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="pointer"></div>
+        <div class="wheel-box">
+            <canvas id="wheel" width="440" height="440"></canvas>
+        </div>
+        
+        <div class="controls">
+            <button id="spin-btn">Spin Wheel</button>
+            <div id="result">Kismat aazmaiye...</div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("wheel");
+        const ctx = canvas.getContext("2d");
+        const spinBtn = document.getElementById("spin-btn");
+        const resultDiv = document.getElementById("result");
+
+        const numbers = ["1", "2", "3", "4", "5", "6", "7", "8"];
+        const colorMain = "#d5e100"; // Neon Yellow
+        const colorLight = "#e8f32a"; // Lighter Neon
+        
+        let currentRotation = 0;
+        const totalSegments = numbers.length;
+        const segmentAngle = 360 / totalSegments;
+
+        function drawWheel() {
+            const radius = canvas.width / 2;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            for (let i = 0; i < totalSegments; i++) {
+                const startAngle = (i * segmentAngle * Math.PI) / 180;
+                const endAngle = ((i + 1) * segmentAngle * Math.PI) / 180;
+
+                // Segment Gradient
+                const grad = ctx.createRadialGradient(centerX, centerY, 50, centerX, centerY, radius);
+                grad.addColorStop(0, i % 2 === 0 ? colorMain : colorLight);
+                grad.addColorStop(1, i % 2 === 0 ? "#c2cd00" : "#d5e100");
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.fillStyle = grad;
+                ctx.fill();
+                
+                // Thin Blue Borders for segments
+                ctx.strokeStyle = "rgba(26, 86, 219, 0.2)";
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Numbers with Blue tint
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + (segmentAngle * Math.PI) / 360);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#1a56db"; // Blue Numbers
+                ctx.font = "bold 30px Arial";
+                ctx.fillText(numbers[i], radius - 30, 10);
+                ctx.restore();
+            }
+
+            // Center Blue Pin
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 12, 0, Math.PI * 2);
+            ctx.fillStyle = "#1a56db";
+            ctx.fill();
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        spinBtn.addEventListener("click", () => {
+            spinBtn.disabled = true;
+            resultDiv.innerText = "Ghoom raha hai...";
+            resultDiv.style.opacity = "0.5";
+
+            // 99% Rigged Logic (Forces 1 or 2)
+            let chance = Math.floor(Math.random() * 100);
+            let targetAngle;
+            let finalResult;
+
+            if (chance < 99) {
+                let isOne = Math.random() < 0.5;
+                targetAngle = isOne ? 247.5 : 202.5; 
+                finalResult = isOne ? "1" : "2";
+            } else {
+                let randomIndex = Math.floor(Math.random() * 6) + 2; 
+                targetAngle = (360 - (randomIndex * segmentAngle) + 270) % 360;
+                finalResult = numbers[randomIndex];
+            }
+
+            const spinAmount = 2160 + targetAngle; // 6 full rotations
+            currentRotation += (spinAmount - (currentRotation % 360));
+            
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+            setTimeout(() => {
+                spinBtn.disabled = false;
+                resultDiv.style.opacity = "1";
+                resultDiv.innerText = `Winner: Number ${finalResult}`;
+            }, 4000);
+        });
+
+        drawWheel();
+    </script>
+
+</body>
+</html>
