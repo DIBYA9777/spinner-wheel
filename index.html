@@ -1,84 +1,103 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Sleek Spinner - #1a56db</title>
+    <title>Responsive 3D Pro Spinner</title>
     <style>
+        :root {
+            --primary-blue: #1a56db;
+            --neon-yellow: #d5e100;
+            --neon-light: #e8f32a;
+            --shadow-blue: #123e9e;
+        }
+
         body {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             background: radial-gradient(circle, #ffffff, #e5e7eb);
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
         }
 
         .container {
             text-align: center;
             position: relative;
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
         }
 
-        /* Blue 3D Pointer */
+        /* 3D Pointer */
         .pointer {
             width: 0; 
             height: 0; 
             border-left: 12px solid transparent;
             border-right: 12px solid transparent;
-            border-top: 35px solid #1a56db; /* Primary Blue */
+            border-top: 35px solid var(--primary-blue);
             position: absolute;
-            top: -15px;
+            top: 5px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 20;
             filter: drop-shadow(0 4px 3px rgba(0,0,0,0.2));
         }
 
-        /* Sleek Blue Wheel Frame */
+        /* Responsive Wheel Frame */
         .wheel-box {
             position: relative;
-            padding: 8px; /* Reduced width */
-            background: #1a56db; 
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            padding: 8px; /* Slim blue border */
+            background: var(--primary-blue); 
             border-radius: 50%;
             box-shadow: 
-                0 10px 25px rgba(26, 86, 219, 0.3),
+                0 10px 30px rgba(26, 86, 219, 0.4),
                 inset 0 2px 5px rgba(255,255,255,0.4);
+            margin: 0 auto;
+            box-sizing: border-box;
         }
 
-        #wheel {
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
             border-radius: 50%;
             display: block;
             transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
             background: white;
         }
 
-        /* 3D Blue Button */
-        #spin-btn {
-            margin-top: 40px;
-            padding: 15px 45px;
-            font-size: 20px;
+        /* Controls Section */
+        .controls {
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: clamp(16px, 4vw, 20px);
             font-weight: 700;
             cursor: pointer;
-            background-color: #1a56db;
+            background-color: var(--primary-blue);
             color: white;
             border: none;
-            border-radius: 8px;
-            /* 3D Depth */
-            box-shadow: 
-                0 6px 0 #123e9e, 
-                0 10px 20px rgba(26, 86, 219, 0.3);
+            border-radius: 10px;
+            box-shadow: 0 6px 0 var(--shadow-blue), 0 10px 20px rgba(26, 86, 219, 0.3);
             transition: all 0.1s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
+            width: 100%;
+            max-width: 250px;
         }
 
-        #spin-btn:active {
-            box-shadow: 0 2px 0 #123e9e;
+        button:active {
+            box-shadow: 0 2px 0 var(--shadow-blue);
             transform: translateY(4px);
         }
 
-        #spin-btn:disabled {
+        button:disabled {
             background-color: #93c5fd;
             box-shadow: 0 4px 0 #60a5fa;
             cursor: not-allowed;
@@ -86,10 +105,22 @@
 
         #result {
             margin-top: 25px;
-            font-size: 26px;
+            font-size: clamp(20px, 5vw, 28px);
             font-weight: 800;
-            color: #1a56db;
+            color: var(--primary-blue);
             min-height: 40px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 400px) {
+            .wheel-box {
+                padding: 6px;
+            }
+            .pointer {
+                border-top-width: 25px;
+                top: 10px;
+            }
         }
     </style>
 </head>
@@ -98,12 +129,12 @@
     <div class="container">
         <div class="pointer"></div>
         <div class="wheel-box">
-            <canvas id="wheel" width="440" height="440"></canvas>
+            <canvas id="wheel" width="800" height="800"></canvas>
         </div>
         
         <div class="controls">
-            <button id="spin-btn">Spin Wheel</button>
-            <div id="result">Kismat aazmaiye...</div>
+            <button id="spin-btn">Spin to Win</button>
+            <div id="result">Try your luck!</div>
         </div>
     </div>
 
@@ -114,8 +145,8 @@
         const resultDiv = document.getElementById("result");
 
         const numbers = ["1", "2", "3", "4", "5", "6", "7", "8"];
-        const colorMain = "#d5e100"; // Neon Yellow
-        const colorLight = "#e8f32a"; // Lighter Neon
+        const colorMain = "#d5e100"; 
+        const colorLight = "#e8f32a"; 
         
         let currentRotation = 0;
         const totalSegments = numbers.length;
@@ -130,8 +161,7 @@
                 const startAngle = (i * segmentAngle * Math.PI) / 180;
                 const endAngle = ((i + 1) * segmentAngle * Math.PI) / 180;
 
-                // Segment Gradient
-                const grad = ctx.createRadialGradient(centerX, centerY, 50, centerX, centerY, radius);
+                const grad = ctx.createRadialGradient(centerX, centerY, 100, centerX, centerY, radius);
                 grad.addColorStop(0, i % 2 === 0 ? colorMain : colorLight);
                 grad.addColorStop(1, i % 2 === 0 ? "#c2cd00" : "#d5e100");
 
@@ -141,38 +171,39 @@
                 ctx.fillStyle = grad;
                 ctx.fill();
                 
-                // Thin Blue Borders for segments
-                ctx.strokeStyle = "rgba(26, 86, 219, 0.2)";
-                ctx.lineWidth = 1;
+                ctx.strokeStyle = "rgba(26, 86, 219, 0.15)";
+                ctx.lineWidth = 2;
                 ctx.stroke();
 
-                // Numbers with Blue tint
+                // Numbers
                 ctx.save();
                 ctx.translate(centerX, centerY);
                 ctx.rotate(startAngle + (segmentAngle * Math.PI) / 360);
                 ctx.textAlign = "right";
-                ctx.fillStyle = "#1a56db"; // Blue Numbers
-                ctx.font = "bold 30px Arial";
-                ctx.fillText(numbers[i], radius - 30, 10);
+                ctx.fillStyle = "#1a56db"; 
+                ctx.font = "bold 50px Arial"; // Larger font for high-res canvas
+                ctx.fillText(numbers[i], radius - 60, 20);
                 ctx.restore();
             }
 
-            // Center Blue Pin
+            // Center Pin
             ctx.beginPath();
-            ctx.arc(centerX, centerY, 12, 0, Math.PI * 2);
+            ctx.arc(centerX, centerY, 25, 0, Math.PI * 2);
             ctx.fillStyle = "#1a56db";
             ctx.fill();
             ctx.strokeStyle = "white";
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 4;
             ctx.stroke();
         }
 
         spinBtn.addEventListener("click", () => {
+            if (spinBtn.disabled) return;
+            
             spinBtn.disabled = true;
-            resultDiv.innerText = "Ghoom raha hai...";
-            resultDiv.style.opacity = "0.5";
+            resultDiv.innerText = "Spinning...";
+            resultDiv.style.opacity = "0.6";
 
-            // 99% Rigged Logic (Forces 1 or 2)
+            // Rigged Logic: 99% Chance for 1 or 2
             let chance = Math.floor(Math.random() * 100);
             let targetAngle;
             let finalResult;
@@ -187,7 +218,8 @@
                 finalResult = numbers[randomIndex];
             }
 
-            const spinAmount = 2160 + targetAngle; // 6 full rotations
+            // High rotation for effect
+            const spinAmount = 2880 + targetAngle; 
             currentRotation += (spinAmount - (currentRotation % 360));
             
             canvas.style.transform = `rotate(${currentRotation}deg)`;
@@ -199,6 +231,7 @@
             }, 4000);
         });
 
+        // Initial Draw
         drawWheel();
     </script>
 
